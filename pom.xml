@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.4</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.smartmall</groupId>
+    <artifactId>smart-mall</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>SmartMall</name>
+    <description>SmartMall</description>
+    <url/>
+    <licenses>
+        <license/>
+    </licenses>
+    <developers>
+        <developer/>
+    </developers>
+    <scm>
+        <connection/>
+        <developerConnection/>
+        <tag/>
+        <url/>
+    </scm>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+    <dependencies>
+        <!-- ============================================ -->
+        <!-- Spring Boot 核心启动器                         -->
+        <!-- 包含 Spring 核心框架 + 自动配置 + 日志(logback) -->
+        <!-- 几乎所有 Spring Boot 项目都必须引入            -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- Web 开发启动器                                 -->
+        <!-- 包含内嵌 Tomcat + Spring MVC                   -->
+        <!-- 用于开发 REST 接口 / Controller，写后端接口必需  -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- ================= 数据库相关 ================= -->
+
+        <!-- ============================================ -->
+        <!-- MyBatis-Plus 启动器（Spring Boot 3 专用版）     -->
+        <!-- 增强版 MyBatis，简化 CRUD，不用手写大量 SQL      -->
+        <!-- 提供 save()、getById()、updateById() 等现成方法  -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>3.5.12</version>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- Druid 数据库连接池（Spring Boot 3 专用版）       -->
+        <!-- 阿里巴巴出品，管理数据库连接，还自带监控页面       -->
+        <!-- 比默认连接池(HikariCP)多了 SQL 监控、防SQL注入等功能 -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-3-starter</artifactId>
+            <version>1.2.23</version>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- MySQL 数据库驱动                               -->
+        <!-- 让 Java 程序能够连接、操作 MySQL 数据库          -->
+        <!-- scope=runtime：只在运行时需要，编码阶段不需要     -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ================= 缓存相关 ================= -->
+
+        <!-- ============================================ -->
+        <!-- Redis 启动器                                   -->
+        <!-- 底层默认使用 Lettuce 客户端连接 Redis            -->
+        <!-- 提供 RedisTemplate、RedisConnectionFactory 等   -->
+        <!-- 当前用于：Product 详情缓存                      -->
+        <!-- 接下来还会用于：JWT黑名单、验证码、购物车、分类树等 -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- ================= 认证授权相关 ================= -->
+
+        <!-- ============================================ -->
+        <!-- Spring Security 完整启动器                      -->
+        <!-- 提供完整的认证授权体系：                          -->
+        <!-- - 密码加密（BCryptPasswordEncoder）              -->
+        <!-- - 请求过滤器链（FilterChain）                     -->
+        <!-- - 认证管理器（AuthenticationManager）             -->
+        <!-- - 方法级权限注解（@PreAuthorize 等）               -->
+        <!-- ⚠️ 引入后默认会拦截所有接口要求登录，              -->
+        <!-- 需要在 SecurityConfig 里显式放行登录/注册等接口     -->
+        <!-- ⚠️ 已包含 spring-security-crypto 的全部功能，       -->
+        <!-- 不需要再单独引入 spring-security-crypto            -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- JJWT —— JWT（JSON Web Token）生成与解析库        -->
+        <!-- 拆成三个包，分工如下：                            -->
+        <!-- ============================================ -->
+
+        <!-- jjwt-api：公共接口和注解，编码阶段需要（编译期依赖） -->
+        <!-- 项目中 import io.jsonwebtoken.* 相关类都来自这里     -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+
+        <!-- jjwt-impl：JWT 具体实现逻辑（生成签名、校验签名等）   -->
+        <!-- scope=runtime：写代码时不需要直接引用它的类，          -->
+        <!-- 只在程序运行时由 jjwt-api 内部调用                    -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- jjwt-jackson：JWT 内容（Claims）与 JSON 互转所需，     -->
+        <!-- 底层依赖 Jackson 做序列化/反序列化，运行时才需要        -->
+        <!-- 如果不引入，生成/解析 Token 时会在运行时报错            -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ================= 工具类相关 ================= -->
+
+        <!-- ============================================ -->
+        <!-- Lombok 工具库                                  -->
+        <!-- 用注解自动生成 getter/setter/构造方法等模板代码   -->
+        <!-- 例如 @Data、@RequiredArgsConstructor 就来自它    -->
+        <!-- optional=true：不会传递给依赖你项目的其他模块      -->
+        <!-- ⚠️ 需要 IDEA 装 Lombok 插件，否则代码报红看不懂     -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- Hutool 工具类库（核心模块）                     -->
+        <!-- 国产 Java 工具箱，提供字符串、日期、集合等常用工具  -->
+        <!-- 例如代码里用到的 StrUtil.isNotBlank() 就来自它     -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <version>5.8.20</version>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- 参数校验启动器                                 -->
+        <!-- 提供 @NotNull、@NotBlank、@Email 等校验注解      -->
+        <!-- 常用于校验前端传来的 DTO 参数是否合法             -->
+        <!-- 例如：@NotBlank(message = "用户名不能为空")       -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- ================= 接口文档相关 ================= -->
+
+        <!-- ============================================ -->
+        <!-- Swagger UI / OpenAPI 接口文档生成               -->
+        <!-- 自动扫描 Controller 生成可视化 API 文档页面        -->
+        <!-- 访问地址通常是：/swagger-ui.html 或 /swagger-ui/index.html -->
+        <!-- 方便前后端联调、接口测试，不用再手写文档            -->
+        <!-- ⚠️ 引入 Spring Security 后，这个文档页面的路径      -->
+        <!-- 也需要在 SecurityConfig 里放行，否则打不开           -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.8</version>
+        </dependency>
+
+        <!-- ================= 测试相关 ================= -->
+
+        <!-- ============================================ -->
+        <!-- Spring Boot 测试启动器                         -->
+        <!-- 包含 JUnit、Mockito 等测试相关依赖               -->
+        <!-- scope=test：只在测试代码里能用，不会打进最终的包   -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </path>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </path>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
