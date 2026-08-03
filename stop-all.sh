@@ -14,7 +14,7 @@ echo "  停止 SmartMall 所有服务"
 echo "============================================"
 
 # 停止微服务
-PORTS=(8081 8082 8083 8084 8085 8086 8087 8088)
+PORTS=(8081 8082 8083 8084 8085 8086 8087 8088 8090 8091)
 for port in "${PORTS[@]}"; do
     PID=$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null)
     if [ -n "$PID" ]; then

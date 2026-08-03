@@ -50,11 +50,20 @@ public enum ResultCode {
     ORDER_STATUS_ERROR(6002, "订单状态异常"),
     ORDER_CREATE_FAILED(6003, "订单创建失败"),
     ORDER_CANCEL_FAILED(6004, "订单取消失败"),
-    ORDER_DETAIL_NOT_EXIST(6005, "订单详情不存在");
+    ORDER_DETAIL_NOT_EXIST(6005, "订单详情不存在"),
 
     // =====================
-    // 支付模块 7000-7099（待添加）
+    // 支付模块 7000-7099
     // =====================
+    PAYMENT_NOT_EXIST(7001, "支付单不存在"),
+    PAYMENT_STATUS_ERROR(7002, "支付状态异常"),
+    PAYMENT_FAILED(7003, "支付失败"),
+    PAYMENT_REFUND_FAILED(7004, "退款失败"),
+
+    // =====================
+    // 搜索模块 8000-8099
+    // =====================
+    SEARCH_ERROR(8001, "搜索服务异常");
 
     private final Integer code;
 

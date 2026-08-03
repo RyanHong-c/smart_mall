@@ -32,6 +32,8 @@
         <module>smartmall-auth</module>
         <module>smartmall-security</module>
         <module>smartmall-gateway</module>
+        <module>smartmall-search</module>
+        <module>smartmall-payment</module>
     </modules>
     <scm>
         <connection/>

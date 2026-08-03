@@ -105,6 +105,8 @@ SERVICES=(
     "smartmall-inventory:8085:inventory-service"
     "smartmall-cart:8086:cart-service"
     "smartmall-order:8087:order-service"
+    "smartmall-search:8090:search-service"
+    "smartmall-payment:8091:payment-service"
     "smartmall-gateway:8088:gateway-service"
 )
 

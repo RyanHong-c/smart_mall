@@ -48,3 +48,13 @@ spring:
               uri: lb://order-service
               predicates:
                 - Path=/api/order/**
+            # 搜索服务
+            - id: search-service
+              uri: lb://search-service
+              predicates:
+                - Path=/api/search/**
+            # 支付服务
+            - id: payment-service
+              uri: lb://payment-service
+              predicates:
+                - Path=/api/payment/**
