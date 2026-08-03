@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.smartmall</groupId>
+        <artifactId>smart-mall</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>smartmall-gateway</artifactId>
+    <name>smartmall-gateway</name>
+    <description>smartmall-gateway</description>
+    <dependencies>
+        <!-- 依赖公共模块（Result、ResultCode、BusinessException 等） -->
+        <dependency>
+            <groupId>com.smartmall</groupId>
+            <artifactId>smartmall-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Spring Cloud Gateway（基于 Netty 的响应式网关） -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+        </dependency>
+        <!-- Nacos 服务发现（Gateway 通过服务名路由到具体实例） -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <!-- LoadBalancer 负载均衡（Gateway 路由时自动负载均衡） -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

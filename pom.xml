@@ -11,6 +11,7 @@
     <groupId>com.smartmall</groupId>
     <artifactId>smart-mall</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>SmartMall</name>
     <description>SmartMall</description>
     <url/>
@@ -20,6 +21,18 @@
     <developers>
         <developer/>
     </developers>
+    <modules>
+        <module>smartmall-common</module>
+        <module>smartmall-user</module>
+        <module>smartmall-product</module>
+        <module>smartmall-category</module>
+        <module>smartmall-inventory</module>
+        <module>smartmall-cart</module>
+        <module>smartmall-order</module>
+        <module>smartmall-auth</module>
+        <module>smartmall-security</module>
+        <module>smartmall-gateway</module>
+    </modules>
     <scm>
         <connection/>
         <developerConnection/>
@@ -28,7 +41,36 @@
     </scm>
     <properties>
         <java.version>17</java.version>
+        <spring-cloud.version>2025.0.0</spring-cloud.version>
+        <spring-cloud-alibaba.version>2023.0.3.2</spring-cloud-alibaba.version>
     </properties>
+
+    <!-- ============================================ -->
+    <!-- BOM（Bill of Materials）—— 版本清单              -->
+    <!-- 不引入任何实际代码，只统一管理所有子模块的依赖版本    -->
+    <!-- 子模块引入 Nacos/Feign 等依赖时不用写版本号        -->
+    <!-- ============================================ -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Cloud BOM（Nacos、Feign、Gateway 等组件版本） -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Spring Cloud Alibaba BOM（Nacos、Sentinel、Seata 等版本） -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <!-- ============================================ -->
         <!-- Spring Boot 核心启动器                         -->
@@ -60,6 +102,13 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>3.5.12</version>
+        </dependency>
+
+        <!-- MyBatis-Plus 分页插件（3.5.9+ 需单独引入） -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser-4.9</artifactId>
             <version>3.5.12</version>
         </dependency>
 
@@ -99,6 +148,30 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+        <!-- ============================================ -->
+        <!-- Redisson —— Redis 分布式框架                    -->
+        <!-- 提供：分布式锁、布隆过滤器、原子操作等高级功能       -->
+        <!-- 用于：缓存穿透防护（布隆过滤器）、库存扣减（分布式锁） -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>3.40.2</version>
+        </dependency>
+
+        <!-- ================= 消息队列相关 ================= -->
+
+        <!-- ============================================ -->
+        <!-- RocketMQ 启动器                                -->
+        <!-- Spring Cloud Alibaba 生态原生的消息中间件         -->
+        <!-- 用于：异步下单解耦、库存变更通知、订单状态广播     -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
+            <version>2.3.3</version>
+        </dependency>
+
         <!-- ================= 认证授权相关 ================= -->
 
         <!-- ============================================ -->
@@ -112,11 +185,8 @@
         <!-- 需要在 SecurityConfig 里显式放行登录/注册等接口     -->
         <!-- ⚠️ 已包含 spring-security-crypto 的全部功能，       -->
         <!-- 不需要再单独引入 spring-security-crypto            -->
+        <!-- ⚠️ 已从父 POM 移除，改为按需在 security/user 模块引入 -->
         <!-- ============================================ -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
 
         <!-- ============================================ -->
         <!-- JJWT —— JWT（JSON Web Token）生成与解析库        -->
@@ -217,6 +287,97 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- ================= 微服务相关 ================= -->
+
+        <!-- ============================================ -->
+        <!-- Nacos 服务注册与发现                            -->
+        <!-- 服务启动时自动注册到 Nacos，其他服务通过服务名发现  -->
+        <!-- 版本由 spring-cloud-alibaba-dependencies BOM 管理 -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- Nacos 配置中心                                 -->
+        <!-- 统一管理所有微服务的配置，支持动态刷新              -->
+        <!-- 版本由 spring-cloud-alibaba-dependencies BOM 管理 -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- Bootstrap 启动器（Spring Cloud 2020+ 需要显式引入） -->
+        <!-- 让 Spring Cloud 能读取 bootstrap.yml/bootstrap.properties -->
+        <!-- Nacos 配置中心需要用到它                         -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- Sentinel 流量控制 & 熔断降级                     -->
+        <!-- 流量控制：限制 QPS，防止突发流量打垮服务           -->
+        <!-- 熔断降级：Feign 调用失败时快速失败，避免雪崩       -->
+        <!-- 版本由 spring-cloud-alibaba-dependencies BOM 管理 -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- OpenFeign 声明式服务调用                        -->
+        <!-- 把 Java 接口方法调用自动转换成 HTTP 请求          -->
+        <!-- 版本由 spring-cloud-dependencies BOM 管理       -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- LoadBalancer 负载均衡器                        -->
+        <!-- Feign 发 HTTP 请求时，通过服务名自动从 Nacos 获取 -->
+        <!-- 实例列表，并做客户端负载均衡                      -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+
+        <!-- ============================================ -->
+        <!-- Micrometer Tracing + Zipkin 链路追踪          -->
+        <!-- 基于 Brave 实现，自动采集 HTTP/Feign/DB 调用链  -->
+        <!-- 无需 javaagent，Spring Boot 3 原生集成         -->
+        <!-- 版本由 spring-boot-dependencies BOM 管理       -->
+        <!-- ============================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.zipkin.reporter2</groupId>
+            <artifactId>zipkin-reporter-brave</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.zipkin.reporter2</groupId>
+            <artifactId>zipkin-sender-urlconnection</artifactId>
+        </dependency>
+        <!-- Feign 集成 Micrometer Tracing，自动传播 traceId 到下游服务 -->
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-micrometer</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -225,12 +386,19 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <!--
+                    生成两个 JAR：
+                    - smartmall-product-0.0.1-SNAPSHOT.jar（普通JAR，类在根目录，供其他模块依赖）
+                    - smartmall-product-0.0.1-SNAPSHOT-exec.jar（fat JAR，BOOT-INF结构，供运行）
+                    -->
+                    <classifier>exec</classifier>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <!-- Zipkin 链路追踪通过 Micrometer Tracing 自动集成，无需 javaagent -->
                 </configuration>
             </plugin>
             <plugin>

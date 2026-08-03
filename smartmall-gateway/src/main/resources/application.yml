@@ -1,0 +1,50 @@
+server:
+  port: 8088
+
+spring:
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            # 认证服务
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
+            # 用户服务
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/user/**
+            # 商品服务
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/api/product/**
+            # 分类服务
+            - id: category-service
+              uri: lb://category-service
+              predicates:
+                - Path=/api/category/**
+            # 库存服务
+            - id: inventory-service
+              uri: lb://inventory-service
+              predicates:
+                - Path=/api/inventory/**
+            # 购物车服务
+            - id: cart-service
+              uri: lb://cart-service
+              predicates:
+                - Path=/api/cart/**
+            # 订单服务
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/api/order/**
