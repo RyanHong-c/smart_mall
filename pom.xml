@@ -34,6 +34,8 @@
         <module>smartmall-gateway</module>
         <module>smartmall-search</module>
         <module>smartmall-payment</module>
+        <module>smartmall-address</module>
+        <module>smartmall-agent</module>
     </modules>
     <scm>
         <connection/>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.smartmall</groupId>
+        <artifactId>smart-mall</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>smartmall-agent</artifactId>
+    <name>smartmall-agent</name>
+    <description>SmartMall LLM 智能体层（LangChain4j + DeepSeek，Function Calling 编排业务工具）</description>
+
+    <properties>
+        <langchain4j.version>1.22.0</langchain4j.version>
+    </properties>
+
+    <dependencies>
+        <!-- 复用公共模块的 Result / ResultCode / BusinessException -->
+        <dependency>
+            <groupId>com.smartmall</groupId>
+            <artifactId>smartmall-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- 依赖商品模块，复用 ProductVO 类型（Feign 调用 product-service） -->
+        <dependency>
+            <groupId>com.smartmall</groupId>
+            <artifactId>smartmall-product</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- LangChain4j：AiServices（ReAct 工具编排）+ 对话记忆 -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j</artifactId>
+            <version>${langchain4j.version}</version>
+        </dependency>
+
+        <!-- LangChain4j OpenAI 兼容模型接入（DeepSeek 走 OpenAI 协议） -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-open-ai</artifactId>
+            <version>${langchain4j.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

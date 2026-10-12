@@ -58,3 +58,8 @@ spring:
               uri: lb://payment-service
               predicates:
                 - Path=/api/payment/**
+            # LLM 智能体服务
+            - id: agent-service
+              uri: lb://agent-service
+              predicates:
+                - Path=/api/agent/**

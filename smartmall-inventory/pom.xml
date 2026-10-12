@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.smartmall</groupId>
+        <artifactId>smart-mall</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>smartmall-inventory</artifactId>
+    <name>smartmall-inventory</name>
+    <description>smartmall-inventory</description>
+    <dependencies>
+        <!-- 依赖公共模块（Result、ResultCode、BusinessException 等） -->
+        <dependency>
+            <groupId>com.smartmall</groupId>
+            <artifactId>smartmall-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Seata 分布式事务：下单+扣库存需要全局事务 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+        </dependency>
+        <!-- Seata AT 模式 undo_log 的 Protostuff 序列化器（缺失会导致下单假提交、数据不落库） -->
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-core</artifactId>
+            <version>1.7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-runtime</artifactId>
+            <version>1.7.2</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

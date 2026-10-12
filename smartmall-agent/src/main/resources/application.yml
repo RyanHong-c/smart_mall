@@ -1,0 +1,17 @@
+server:
+  port: 8092
+
+# ============================================
+# LLM 智能体配置（LangChain4j 编程式加载）
+# 通过环境变量覆盖，避免把密钥提交到仓库：
+#   DEEPSEEK_API_KEY  DeepSeek API Key（必填）
+#   DEEPSEEK_BASE_URL 接口地址（默认 DeepSeek 官方）
+#   DEEPSEEK_MODEL    模型名（默认 deepseek-flash）
+# ============================================
+langchain4j:
+  open-ai:
+    api-key: ${DEEPSEEK_API_KEY:}
+    base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com/v1}
+    model-name: ${DEEPSEEK_MODEL:deepseek-flash}
+    temperature: 0.3
+    timeout: 120s
