@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartMall 智能导购</title>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<style>
+  :root {
+    --primary: #4f46e5;
+    --primary-dark: #4338ca;
+    --bg: #f1f5f9;
+    --user-bubble: #4f46e5;
+    --ai-bubble: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+  }
+  .app {
+    width: 100%;
+    max-width: 820px;
+    height: 100vh;
+    max-height: 900px;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, .12);
+    overflow: hidden;
+  }
+  @media (min-width: 640px) {
+    .app { height: 92vh; border-radius: 20px; }
+  }
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+    color: #fff;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header .title { font-size: 18px; font-weight: 700; }
+  .header .subtitle { font-size: 12px; opacity: .85; margin-top: 2px; }
+  .header button {
+    background: rgba(255,255,255,.18);
+    border: none;
+    color: #fff;
+    padding: 7px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .header button:hover { background: rgba(255,255,255,.3); }
+  .chips {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    background: #fafafa;
+    white-space: nowrap;
+  }
+  .chips button {
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .chips button:hover { border-color: var(--primary); color: var(--primary); }
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--bg);
+  }
+  .msg { display: flex; max-width: 86%; }
+  .msg.user { align-self: flex-end; }
+  .msg.ai { align-self: flex-start; }
+  .bubble {
+    padding: 11px 15px;
+    border-radius: 16px;
+    font-size: 14.5px;
+    line-height: 1.65;
+    word-break: break-word;
+    white-space: normal;
+  }
+  .msg.user .bubble {
+    background: var(--user-bubble);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .msg.ai .bubble {
+    background: var(--ai-bubble);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  }
+  .msg.ai .bubble table { border-collapse: collapse; margin: 8px 0; width: 100%; }
+  .msg.ai .bubble table th, .msg.ai .bubble table td { border: 1px solid var(--border); padding: 6px 10px; font-size: 13px; }
+  .msg.ai .bubble table th { background: #f1f5f9; }
+  .msg.ai .bubble p { margin: 4px 0; }
+  .msg.ai .bubble strong { color: #0f172a; }
+  .msg.ai .bubble ul, .msg.ai .bubble ol { padding-left: 20px; margin: 4px 0; }
+  .msg.ai .bubble code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .typing { display: inline-flex; gap: 4px; align-items: center; }
+  .typing span {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #94a3b8; animation: blink 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: .2s; }
+  .typing span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%, 80%, 100% { opacity: .2; } 40% { opacity: 1; } }
+  .input-area {
+    display: flex;
+    gap: 10px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+    background: #fff;
+  }
+  .input-area textarea {
+    flex: 1;
+    resize: none;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-size: 14.5px;
+    font-family: inherit;
+    outline: none;
+    max-height: 120px;
+    line-height: 1.5;
+  }
+  .input-area textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
+  .input-area button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 0 22px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .input-area button:hover { background: var(--primary-dark); }
+  .input-area button:disabled { opacity: .5; cursor: not-allowed; }
+  .notice { text-align: center; color: var(--muted); font-size: 12px; padding: 6px; }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div>
+        <div class="title">🛍️ SmartMall 智能导购</div>
+        <div class="subtitle">自然语言购物助手 · LangChain4j + DeepSeek</div>
+      </div>
+      <button onclick="resetChat()">新会话</button>
+    </div>
+
+    <div class="chips" id="chips">
+      <button onclick="sendQuick('帮我找一款手机')">📱 找手机</button>
+      <button onclick="sendQuick('帮我查 iPhone 17 Pro 的库存')">📦 查库存</button>
+      <button onclick="sendQuick('我要买 2 台 iPhone 17 Pro，帮我下单')">🛒 下单</button>
+      <button onclick="sendQuick('帮我看看购物车')">🧺 购物车</button>
+      <button onclick="sendQuick('你好，介绍一下你自己')">👋 打招呼</button>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="msg ai"><div class="bubble">你好，我是小龙 🐉 你的智能导购助手。<br>我可以帮你搜索商品、查库存、加购物车、下单等，试试下面的快捷问题吧～</div></div>
+    </div>
+
+    <div class="input-area">
+      <textarea id="input" rows="1" placeholder="输入你的需求，例如：帮我找一款 5000 元以内的手机" onkeydown="onKey(event)"></textarea>
+      <button id="sendBtn" onclick="send()">发送</button>
+    </div>
+    <div class="notice">⚠️ 下单为写操作：会先生成预览，你确认后才正式下单</div>
+  </div>
+
+<script>
+  const API = '/api/agent/chat';
+  function newSessionId() {
+    return (window.crypto && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : ('s' + Date.now() + Math.random().toString(16).slice(2));
+  }
+  let sessionId = localStorage.getItem('sm_session');
+  if (!sessionId) { sessionId = newSessionId(); localStorage.setItem('sm_session', sessionId); }
+  let busy = false;
+
+  function onKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  }
+
+  function addMsg(role, html) {
+    const box = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = html;
+    div.appendChild(bubble);
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+    return bubble;
+  }
+
+  function addTyping() {
+    const box = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'msg ai';
+    div.id = 'typing';
+    div.innerHTML = '<div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>';
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+  function removeTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+  function renderMd(text) {
+    try { return marked.parse(text || ''); }
+    catch (e) { return escapeHtml(text); }
+  }
+  function escapeHtml(s) { return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  async function send() {
+    const input = document.getElementById('input');
+    const text = input.value.trim();
+    if (!text || busy) return;
+    input.value = '';
+    input.style.height = 'auto';
+    addMsg('user', escapeHtml(text));
+    busy = true;
+    document.getElementById('sendBtn').disabled = true;
+    addTyping();
+    try {
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: sessionId, message: text })
+      });
+      const json = await res.json();
+      removeTyping();
+      if (json.code === 200) {
+        addMsg('ai', renderMd(json.data));
+      } else {
+        addMsg('ai', '⚠️ ' + escapeHtml(json.message || '出错了'));
+      }
+    } catch (err) {
+      removeTyping();
+      addMsg('ai', '⚠️ 请求失败：' + escapeHtml(err.message));
+    } finally {
+      busy = false;
+      document.getElementById('sendBtn').disabled = false;
+      input.focus();
+    }
+  }
+
+  function sendQuick(t) {
+    const input = document.getElementById('input');
+    input.value = t;
+    send();
+  }
+
+  function resetChat() {
+    sessionId = newSessionId();
+    localStorage.setItem('sm_session', sessionId);
+    document.getElementById('messages').innerHTML =
+      '<div class="msg ai"><div class="bubble">已开始新会话～ 有什么可以帮你？</div></div>';
+  }
+
+  // 首次进入时生成 sessionId（惰性，不强制）
+  document.getElementById('input').focus();
+</script>
+</body>
+</html>
