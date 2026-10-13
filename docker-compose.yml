@@ -1,0 +1,90 @@
+# ============================================================
+# SmartMall 基础设施（Docker Compose）
+# 项目名：smartmall，所有容器统一以 smartmall- 前缀分组
+# 用法：
+#   docker compose up -d          # 启动全部
+#   docker compose stop           # 停止全部
+#   docker compose ps             # 查看状态
+#   docker compose logs -f <svc>  # 查看日志
+# ============================================================
+name: smartmall
+
+services:
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-1813745788}
+    volumes:
+      - /Users/ryan-hong/docker-data/mysql:/var/lib/mysql
+    command: mysqld
+
+  redis:
+    image: redis:8
+    ports:
+      - "6379:6379"
+    volumes:
+      - /Users/ryan-hong/redis/data:/data
+      - /Users/ryan-hong/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  nacos:
+    image: nacos/nacos-server:v2.4.0
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    environment:
+      MODE: standalone
+      PREFER_HOST_MODE: ip
+
+  rocketmq-namesrv:
+    image: apache/rocketmq:5.3.0
+    ports:
+      - "9876:9876"
+    environment:
+      JAVA_OPT_EXT: "-Xms256m -Xmx256m"
+    command: sh mqnamesrv
+
+  rocketmq-broker:
+    image: apache/rocketmq:5.3.0
+    ports:
+      - "10909:10909"
+      - "10911:10911"
+    environment:
+      JAVA_OPT_EXT: "-Xms512m -Xmx512m"
+    volumes:
+      - /Users/ryan-hong/rocketmq/conf/broker.conf:/home/rocketmq/rocketmq-5.3.0/conf/broker.conf
+    command: sh mqbroker -c /home/rocketmq/rocketmq-5.3.0/conf/broker.conf
+    depends_on:
+      - rocketmq-namesrv
+
+  seata-server:
+    image: apache/seata-server:2.1.0
+    ports:
+      - "7091:7091"
+      - "8091:8091"
+    environment:
+      SEATA_IP: host.docker.internal
+      SEATA_PORT: "8091"
+      TZ: Asia/Shanghai
+
+  sentinel-dashboard:
+    image: bladex/sentinel-dashboard:1.8.6
+    ports:
+      - "8080:8858"
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    ports:
+      - "9411:9411"
+
+  elasticsearch:
+    image: elasticsearch:8.15.3
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m

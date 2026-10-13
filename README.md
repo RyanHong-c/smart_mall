@@ -51,7 +51,7 @@ smart_mall/
 
 - JDK 17+、Maven 3.9+、Docker Desktop（已启动）
 - DeepSeek API Key（或任意 OpenAI 兼容 Key）
-- Docker 容器已创建（mysql/redis/nacos/rocketmq/seata/sentinel/zipkin/elasticsearch）
+- Docker 容器由 `docker-compose.yml` 管理（project: smartmall，容器名 `smartmall-xxx-1`）
 - 本机 MySQL 服务在运行（微服务连 `127.0.0.1:3306`，见下文「注意事项」）
 
 ### 2. 一键启动
@@ -77,7 +77,8 @@ export DEEPSEEK_API_KEY=sk-你的key
 ### 3. 停止
 
 ```bash
-./stop-agent.sh      # 停止微服务 + agent（容器不停止）
+./stop-agent.sh      # 停止微服务 + agent
+docker compose stop  # 如需同时停止基础设施容器
 ```
 
 ### 4. 手动启动（逐个服务）
@@ -141,12 +142,12 @@ ab -n 2000 -c 100 http://127.0.0.1:8083/api/product/1
 
 ## 六、注意事项（踩坑记录）
 
-1. **本机有两个 MySQL**：微服务连的是本机 `127.0.0.1:3306` 的 mysqld（不是 Docker 容器 mysql）。`docker exec mysql` 查的是另一个库，会看到旧数据。
+1. **本机有两个 MySQL**：微服务连的是本机 `127.0.0.1:3306` 的 mysqld（不是 Docker 容器 mysql）。`docker exec smartmall-mysql-1` 查的是另一个库，会看到旧数据。
 2. **Elasticsearch 需 IK 插件**：`search-service` 依赖 `ik_max_word` 分析器。新环境需重装：
    ```bash
-   docker exec elasticsearch elasticsearch-plugin install --batch \
+   docker exec smartmall-elasticsearch-1 elasticsearch-plugin install --batch \
      https://get.infini.cloud/elasticsearch/analysis-ik/8.15.3
-   docker restart elasticsearch
+   docker restart smartmall-elasticsearch-1
    ```
 3. **端口规划**：gateway 8088 / auth 8081 / user 8082 / product 8083 / category 8084 / inventory 8085 / cart 8086 / order 8087 / search 8090 / agent 8092 / address 8093 / payment 8094（Seata 占用 8091）。
 

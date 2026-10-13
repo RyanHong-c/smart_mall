@@ -9,3 +9,5 @@ for p in "${PORTS[@]}"; do
     echo "端口 $p 无服务运行"
   fi
 done
+
+# 如需同时停止 Docker 基础设施容器，执行：docker compose stop

@@ -34,17 +34,8 @@ if [ -z "$DEEPSEEK_API_KEY" ]; then
 fi
 
 # ---------- 1. 基础设施 ----------
-echo -e "\n==> 1/3 启动 Docker 基础设施"
-INFRA=(mysql redis nacos rocketmq-namesrv rocketmq-broker seata-server sentinel-dashboard zipkin elasticsearch)
-for c in "${INFRA[@]}"; do
-  if docker ps --format '{{.Names}}' | grep -q "^${c}$"; then
-    info "$c 已在运行"
-  elif docker start "$c" >/dev/null 2>&1; then
-    info "$c 已启动"
-  else
-    err "$c 启动失败（容器不存在？请先 docker create/run 创建）"
-  fi
-done
+echo -e "\n==> 1/3 启动 Docker 基础设施（docker compose，smartmall 分组）"
+docker compose up -d
 info "等待基础设施就绪(20s)..."
 sleep 20
 
