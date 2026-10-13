@@ -155,8 +155,10 @@ mvn -pl smartmall-agent spring-boot:run \
 - 下单走 **order-service（护栏：预览 → 用户确认 → 正式下单）**，下单时通过 **Seata 全局事务同步扣减库存（乐观锁防超卖）**
 - 多轮对话记忆按 sessionId 隔离，并**持久化到 Redis**（重启不丢失、多实例共享）
 
+**已完成增强**：
+- ✅ MCP Server：8 个工具已暴露为标准 MCP 协议（stdio），Claude Desktop / Cursor / Codex 等外部 Agent 可直接调用，验证见 `scripts/mcp-verify.py`
+- ✅ 性能压测 + 端到端评测：见 `BENCHMARK.md`（QPS 2680 / 正确率 100%）
+
 **可选增强（后续）**：
-1. RAG 向量检索：商品描述 embedding 化 + ES `dense_vector`（需额外的 embedding 模型，DeepSeek 不提供 embedding API）
-2. MCP Server：把工具暴露为 MCP，供外部 Agent 客户端调用
-3. 可观测性：工具调用链路接入 Zipkin；评测集量化工具选择正确率
-4. 工具错误处理：配置 LangChain4j 的 ToolErrorHandling
+1. RAG 向量检索：商品描述 embedding 化 + ES `dense_vector`（需额外 embedding 服务，DeepSeek 不提供 embedding API，可接硅基流动/通义）
+2. 工具错误处理：配置 LangChain4j 的 ToolErrorHandling
