@@ -89,7 +89,7 @@ mvn -pl smartmall-agent spring-boot:run
 agent 服务内置了一个可直接使用的 Web 聊天界面（同源托管，无需额外构建）：
 
 - 浏览器打开 `http://localhost:8092/`
-- 支持多轮对话、快捷问题、Markdown 渲染、会话重置
+- 支持多轮对话、快捷问题、Markdown 渲染、会话重置、**流式输出（SSE 打字机效果）**
 - 前端代码位于 `src/main/resources/static/index.html`
 
 ### 独立快速验证（不依赖 Nacos/微服务，工具会降级为空结果）

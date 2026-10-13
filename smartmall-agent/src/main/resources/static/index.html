@@ -193,6 +193,7 @@
 
 <script>
   const API = '/api/agent/chat';
+  const STREAM_API = '/api/agent/chat/stream';
   function newSessionId() {
     return (window.crypto && crypto.randomUUID)
       ? crypto.randomUUID()
@@ -245,23 +246,53 @@
     addMsg('user', escapeHtml(text));
     busy = true;
     document.getElementById('sendBtn').disabled = true;
-    addTyping();
+
+    // 创建 AI 气泡，用于流式追加
+    const box = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'msg ai';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+    div.appendChild(bubble);
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+
+    let fullText = '';
     try {
-      const res = await fetch(API, {
+      const res = await fetch(STREAM_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId: sessionId, message: text })
       });
-      const json = await res.json();
-      removeTyping();
-      if (json.code === 200) {
-        addMsg('ai', renderMd(json.data));
-      } else {
-        addMsg('ai', '⚠️ ' + escapeHtml(json.message || '出错了'));
+      if (!res.ok || !res.body) throw new Error('HTTP ' + res.status);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let first = true;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const chunks = buffer.split('\n\n');
+        buffer = chunks.pop();
+        for (const chunk of chunks) {
+          const line = chunk.trim();
+          if (!line.startsWith('data:')) continue;
+          const data = line.slice(5).trim();
+          if (!data) continue;
+          if (first) { bubble.innerHTML = ''; first = false; }
+          fullText += data;
+          bubble.innerHTML = renderMd(fullText);
+          box.scrollTop = box.scrollHeight;
+        }
       }
+      if (!fullText) fullText = '（无响应）';
+      bubble.innerHTML = renderMd(fullText);
+      box.scrollTop = box.scrollHeight;
     } catch (err) {
-      removeTyping();
-      addMsg('ai', '⚠️ 请求失败：' + escapeHtml(err.message));
+      bubble.innerHTML = '⚠️ 请求失败：' + escapeHtml(err.message);
     } finally {
       busy = false;
       document.getElementById('sendBtn').disabled = false;
