@@ -144,8 +144,8 @@ mvn -pl smartmall-agent spring-boot:run \
 `自然语言 → DeepSeek LLM → Function Calling → Feign → product/search/inventory/cart/order-service(Nacos) → MySQL/Redis/ES`
 
 - 商品搜索走 **search-service（Elasticsearch + IK 中文分词）**
-- 下单走 **order-service（护栏：预览 → 用户确认 → 正式下单）**，下单后经 RocketMQ 异步扣减库存
-- 多轮对话记忆按 sessionId 隔离
+- 下单走 **order-service（护栏：预览 → 用户确认 → 正式下单）**，下单时通过 **Seata 全局事务同步扣减库存（乐观锁防超卖）**
+- 多轮对话记忆按 sessionId 隔离，并**持久化到 Redis**（重启不丢失、多实例共享）
 
 **可选增强（后续）**：
 1. RAG 向量检索：商品描述 embedding 化 + ES `dense_vector`（需额外的 embedding 模型，DeepSeek 不提供 embedding API）

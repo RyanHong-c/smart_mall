@@ -1,6 +1,7 @@
 package com.smartmall.inventory.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.smartmall.inventory.dto.InventoryUpdateDTO;
 import com.smartmall.inventory.entity.Inventory;
@@ -115,32 +116,24 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
     @Transactional
     public void decrease(Long productId, Integer count) {
         String lockKey = LOCK_KEY_PREFIX + productId;
-        for (int i = 0; i < RETRY_TIMES; i++) {
-            if (redisUtils.tryLock(lockKey, LOCK_WAIT, LOCK_LEASE)) {
-                try {
-                    Inventory inventory = getInventory(productId);
-                    if (inventory == null) {
-                        throw new BusinessException(ResultCode.INVENTORY_NOT_EXIST);
-                    }
-                    int available = inventory.getStock() - inventory.getFrozenStock();
-                    if (available < count) {
-                        throw new BusinessException(ResultCode.INVENTORY_NOT_ENOUGH);
-                    }
-                    inventory.setStock(inventory.getStock() - count);
-                    updateById(inventory);
-                    redisUtils.set(STOCK_KEY_PREFIX + productId, inventory, CACHE_TIMEOUT);
-                    return;
-                } finally {
-                    redisUtils.unlock(lockKey);
-                }
-            }
-            try {
-                Thread.sleep(RETRY_INTERVAL);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new BusinessException(ResultCode.FAIL);
-            }
+        boolean locked = redisUtils.tryLock(lockKey, LOCK_WAIT, LOCK_LEASE);
+        if (!locked) {
+            throw new BusinessException(ResultCode.FAIL);
         }
-        throw new BusinessException(ResultCode.FAIL);
+        try {
+            // 乐观锁原子扣减：数据库层面保证 stock >= count 才扣减，防止超卖
+            LambdaUpdateWrapper<Inventory> wrapper = new LambdaUpdateWrapper<>();
+            wrapper.eq(Inventory::getProductId, productId)
+                    .ge(Inventory::getStock, count)
+                    .setSql("stock = stock - " + count);
+            boolean updated = update(wrapper);
+            if (!updated) {
+                throw new BusinessException(ResultCode.INVENTORY_NOT_ENOUGH);
+            }
+            // 扣减成功后删除缓存，避免读到旧库存
+            redisUtils.delete(STOCK_KEY_PREFIX + productId);
+        } finally {
+            redisUtils.unlock(lockKey);
+        }
     }
 }

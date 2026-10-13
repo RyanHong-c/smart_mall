@@ -1,6 +1,5 @@
 package com.smartmall.agent.config;
 
-import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
@@ -12,8 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Configuration
 public class LangChain4jConfig {
@@ -54,14 +51,17 @@ public class LangChain4jConfig {
      * 每个 sessionId 维护独立的对话记忆窗口。
      */
     @Bean
-    public ShopAssistant shopAssistant(ChatModel chatModel, ShopTools shopTools) {
-        Map<String, ChatMemory> memoryStore = new ConcurrentHashMap<>();
+    public ShopAssistant shopAssistant(ChatModel chatModel, ShopTools shopTools,
+                                       RedisChatMemoryStore memoryStore) {
+        // 多轮记忆持久化到 Redis：重启不丢失，支持多实例共享
         return AiServices.builder(ShopAssistant.class)
                 .chatModel(chatModel)
                 .tools(shopTools)
-                .chatMemoryProvider(sessionId -> memoryStore.computeIfAbsent(
-                        String.valueOf(sessionId),
-                        id -> MessageWindowChatMemory.withMaxMessages(20)))
+                .chatMemoryProvider(sessionId -> MessageWindowChatMemory.builder()
+                        .id(sessionId)
+                        .maxMessages(20)
+                        .chatMemoryStore(memoryStore)
+                        .build())
                 .build();
     }
 }

@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.redisson.spring.starter.RedissonAutoConfigurationV2;
@@ -22,7 +21,6 @@ import org.redisson.spring.starter.RedissonAutoConfigurationV2;
         DataSourceTransactionManagerAutoConfiguration.class,
         DruidDataSourceAutoConfigure.class,
         MybatisPlusAutoConfiguration.class,
-        RedisAutoConfiguration.class,
         RedissonAutoConfigurationV2.class
 })
 public class SmartmallAgentApplication {

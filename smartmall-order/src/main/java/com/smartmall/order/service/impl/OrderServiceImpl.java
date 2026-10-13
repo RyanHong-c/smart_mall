@@ -6,16 +6,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.smartmall.enums.OrderStatus;
 import com.smartmall.enums.ResultCode;
 import com.smartmall.exception.BusinessException;
-import com.smartmall.message.dto.OrderMessageDTO;
 import com.smartmall.order.dto.OrderCreateDTO;
 import com.smartmall.order.dto.OrderItemCreateDTO;
 import com.smartmall.order.dto.OrderQueryDTO;
 import com.smartmall.order.dto.OrderStatusDTO;
 import com.smartmall.order.entity.Order;
 import com.smartmall.order.entity.OrderItem;
+import com.smartmall.order.feign.InventoryFeignClient;
 import com.smartmall.order.feign.ProductFeignClient;
 import com.smartmall.order.mapper.OrderMapper;
-import com.smartmall.order.mq.OrderMessageProducer;
 import com.smartmall.order.service.OrderItemService;
 import com.smartmall.order.service.OrderService;
 import com.smartmall.product.vo.ProductVO;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +36,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     private final ProductFeignClient productFeignClient;
 
-    private final OrderMessageProducer orderMessageProducer;
+    private final InventoryFeignClient inventoryFeignClient;
 
     @Override
     @GlobalTransactional(name = "createOrder", rollbackFor = Exception.class)
@@ -50,8 +48,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         order.setStatus(OrderStatus.PENDING.getCode());
         BigDecimal totalAmount = BigDecimal.ZERO;
         save(order);
-
-        List<OrderMessageDTO.OrderItemMessage> messageItems = new ArrayList<>();
 
         for (OrderItemCreateDTO item : dto.getItems()) {
             Result<ProductVO> result = productFeignClient.getById(item.getProductId());
@@ -67,21 +63,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             orderItem.setPrice(product.getPrice());
             orderItem.setQuantity(item.getQuantity());
             totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-            orderItemService.save(orderItem);
 
-            messageItems.add(new OrderMessageDTO.OrderItemMessage(
-                    product.getId(), product.getName(), product.getPrice(), item.getQuantity()));
+            // 同步扣减库存（在 Seata 全局事务内，任一商品扣减失败则整体回滚）
+            Result<Void> decResult = inventoryFeignClient.decrease(item.getProductId(), item.getQuantity());
+            if (decResult == null || decResult.getCode() != 200) {
+                throw new BusinessException(ResultCode.INVENTORY_NOT_ENOUGH);
+            }
+
+            orderItemService.save(orderItem);
         }
         order.setTotalAmount(totalAmount);
         updateById(order);
-
-        OrderMessageDTO message = new OrderMessageDTO();
-        message.setOrderId(order.getId());
-        message.setOrderNo(order.getOrderNo());
-        message.setUserId(order.getUserId());
-        message.setTotalAmount(totalAmount);
-        message.setItems(messageItems);
-        orderMessageProducer.sendOrderCreated(message);
 
         return order;
     }
