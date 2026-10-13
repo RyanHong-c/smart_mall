@@ -84,6 +84,14 @@ mvn -pl smartmall-agent spring-boot:run
 
 接入网关后，统一从 `http://localhost:8088/api/agent/chat` 访问。
 
+### API 文档（Swagger）
+
+各服务已集成 springdoc，启动后可直接访问在线接口文档：
+
+- agent: `http://localhost:8092/swagger-ui/index.html`
+- product: `http://localhost:8083/swagger-ui/index.html`
+- 其他服务同理（端口 + `/swagger-ui/index.html`）
+
 ### 前端聊天界面
 
 agent 服务内置了一个可直接使用的 Web 聊天界面（同源托管，无需额外构建）：
