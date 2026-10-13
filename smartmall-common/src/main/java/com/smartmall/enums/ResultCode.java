@@ -63,7 +63,13 @@ public enum ResultCode {
     // =====================
     // 搜索模块 8000-8099
     // =====================
-    SEARCH_ERROR(8001, "搜索服务异常");
+    SEARCH_ERROR(8001, "搜索服务异常"),
+
+    // =====================
+    // 地址模块 9000-9099
+    // =====================
+    ADDRESS_NOT_EXIST(9001, "收货地址不存在"),
+    ADDRESS_MAX_COUNT(9002, "收货地址已达上限");
 
     private final Integer code;
 

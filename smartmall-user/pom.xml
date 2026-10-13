@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.smartmall</groupId>
+        <artifactId>smart-mall</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>smartmall-user</artifactId>
+    <name>smartmall-user</name>
+    <description>smartmall-user</description>
+
+    <dependencies>
+        <!-- 依赖公共模块（Result、ResultCode、BusinessException 等） -->
+        <dependency>
+            <groupId>com.smartmall</groupId>
+            <artifactId>smartmall-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- spring-security-crypto：仅密码加密（BCryptPasswordEncoder），不引入 Security 过滤器链 -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
