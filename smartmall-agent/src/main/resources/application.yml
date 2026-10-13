@@ -15,3 +15,11 @@ langchain4j:
     model-name: ${DEEPSEEK_MODEL:deepseek-flash}
     temperature: 0.3
     timeout: 120s
+  # MCP Server（把 @Tool 工具暴露为 MCP 协议，供外部 Agent 客户端调用）
+  # 默认关闭；以 MCP 模式启动：MCP_ENABLED=true
+  community:
+    mcp:
+      server:
+        enabled: ${MCP_ENABLED:false}
+        tool-bean-names:
+          - shopTools

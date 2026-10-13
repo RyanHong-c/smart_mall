@@ -46,6 +46,13 @@
             <artifactId>langchain4j-open-ai</artifactId>
             <version>${langchain4j.version}</version>
         </dependency>
+
+        <!-- MCP Server：把 ShopTools 的 @Tool 方法暴露为标准 MCP 协议（供外部 Agent 客户端调用） -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-community-mcp-server-spring-boot-starter</artifactId>
+            <version>1.22.0-beta32</version>
+        </dependency>
     </dependencies>
 
     <build>
